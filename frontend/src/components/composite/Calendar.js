@@ -66,20 +66,25 @@ export function Calendar() {
   // Holidays list
   const holidays = useAsyncList({
     async load(signal) {
-      let { data, error } = await fetchHolidays({
-        fetchornot: REAL_HOLIDAY_FETCH,
-        country: selectedGlobalCountry,
-        year: currentYear,
-        signal,
-      })
+      let response
+      if (selectedGlobalCountry) {
+        response = await fetchHolidays({
+          fetchornot: REAL_HOLIDAY_FETCH,
+          country: selectedGlobalCountry,
+          year: currentYear,
+          signal,
+        })
+      } else {
+        response = { data: [] }
+      }
 
-      return { items: data }
+      return { items: response.data }
     },
   })
-  // Modify holiday list with country change
+  // Modify holiday list with country change and year change
   useEffect(() => {
     holidays.reload()
-  }, [selectedGlobalCountry])
+  }, [selectedGlobalCountry, currentYear])
 
   // User events list
   const events = useAsyncList({
@@ -92,7 +97,10 @@ export function Calendar() {
       return { items: data }
     },
   })
-  // Modify user-events when timezone is changed
+  // Modify user-events when month change, year change
+  useEffect(() => {
+    events.reload()
+  }, [currentMonth, currentYear])
 
   const findAllHolidays = (day) => {
     const foundHolidays = holidays.items.filter((holiday) => {
@@ -167,9 +175,6 @@ export function Calendar() {
               events={findAllEvents(day)}
               revalidateEvents={() => {
                 events.reload()
-              }}
-              addEvent={(event) => {
-                events.append(event)
               }}
             />
           </div>

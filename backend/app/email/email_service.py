@@ -18,6 +18,7 @@ class EmailBody(BaseModel):
   event_name: str | None = None
   event_date: str | None = None
   event_time: str | None = None
+  participants: list[str] | None = None
 
 class SendEmailType(Enum):
   confirmation = 'confirmation'
@@ -86,6 +87,10 @@ async def send_email_sample():
 
 async def send_email(email: EmailBody,
                      send_email_type: SendEmailType):
+  if email.participants is None or len(email.participants) == 0:
+    print('No participants to send email to')
+    return {"message": "no participants to send email to"}
+
   print(f'Creating {send_email_type} email')
   if send_email_type == SendEmailType.update:
     template = '_update_confirmation_template.html'
@@ -105,7 +110,7 @@ async def send_email(email: EmailBody,
 
   message = MessageSchema(
     subject=email.subject,
-    recipients=['aasispaudelthp2@gmail.com'],
+    recipients=email.participants,
     body=email_content,
     subtype=MessageType.html)
 

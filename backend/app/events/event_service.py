@@ -120,7 +120,8 @@ def delete_event(background_tasks, event_id: int, session: Session):
     # Remove job
     __remove_job_with_grace(event.id)
     background_tasks.add_task(
-      send_email, EmailBody(subject=f'Event {event.title} deleted successfully'),
+      send_email, EmailBody(subject=f'Event {event.title} deleted successfully',
+                            participants=event.participants),
       SendEmailType.delete)
 
     return {'id': event_id}
@@ -146,4 +147,5 @@ def __make_email_body(event: Event | UpdateEventRequest, subject: str | None = N
     event_name=event.title,
     event_date=event.event_from.strftime('%Y-%m-%d'),
     event_time=event.event_from.strftime('%H:%M'),
+    participants=event.participants
   )

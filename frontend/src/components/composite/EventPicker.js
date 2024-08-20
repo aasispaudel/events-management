@@ -1,7 +1,7 @@
 "use client"
 
 import { TimezoneContext } from "@/app/Providers"
-import { updateEvent } from "@/lib/api/event-mutations"
+import { addEvent, updateEvent } from "@/lib/api/event-mutations"
 import { dateFrom1TimeFrom2 } from "@/lib/misc/time-helpers"
 import addQuestionSchema from "@/lib/schema/event-picker-schema"
 import { hasValue } from "@/lib/utils"

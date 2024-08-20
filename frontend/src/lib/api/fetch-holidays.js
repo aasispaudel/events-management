@@ -24,7 +24,7 @@ const fetchHolidays = async ({ fetchornot, country, year, signal }) => {
   const url = new URL("https://holidayapi.com/v1/holidays")
   const params = {
     country,
-    year,
+    year: 2023,
     pretty: "true",
     key: "f42ac06c-5777-4399-afb5-6e15a24565c5",
   }
@@ -42,19 +42,19 @@ const fetchHolidays = async ({ fetchornot, country, year, signal }) => {
 
     const data = await response.json()
 
-    return { data: formatHolidays(data.holidays) }
+    return { data: formatHolidays(data.holidays, year) }
   } catch (error) {
     console.log({ error })
     return { data: [], error }
   }
 }
 
-const formatHolidays = (holidays) => {
+const formatHolidays = (holidays, year) => {
   return holidays.map((holiday) => {
     const parsedDate = parseDate(holiday.date)
     return {
       id: holiday.uuid,
-      date: parsedDate.set({ year: 2024 }),
+      date: parsedDate.set({ year: year }),
       name: holiday.name,
       type: holiday.public === true ? EventTypes.holiday : EventTypes.important,
     }
