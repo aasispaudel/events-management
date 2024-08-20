@@ -4,7 +4,13 @@ import { motion } from "framer-motion"
 import { useCallback } from "react"
 import { GoDotFill } from "react-icons/go"
 
-const MyEvent = ({ setPopoverOpen, type, title, setTriggerEvent }) => {
+const CHAR_LENGTH_MAP = {
+  lg: 12,
+  md: 8,
+  sm: 4,
+}
+
+const MyEvent = ({ setPopoverOpen, type, title, id, setTriggerEvent }) => {
   /**
    * Note that event parameter on this funciton is different from our event which are created events or holidays
    * For example in setTriggerEvent: event is a holiday or created event which triggers the popver
@@ -13,27 +19,29 @@ const MyEvent = ({ setPopoverOpen, type, title, setTriggerEvent }) => {
    * @param {clickEvent} event
    */
   const onClick = (event) => {
+    console.log("Event is being fired")
+
     setPopoverOpen(false)
     event.preventDefault()
     event.stopPropagation()
 
-    setTriggerEvent({ title, type })
+    setTriggerEvent({ title, type, id })
     setPopoverOpen(true)
     console.log("Event clicked")
   }
 
-  const getFormattedTitle = useCallback((title) => {
-    if (title.length <= 12) {
+  const getFormattedTitle = useCallback((title, type = "lg") => {
+    if (title.length <= CHAR_LENGTH_MAP[type]) {
       return title
     } else {
-      return `${title.slice(0, 12)}..`
+      return `${title.slice(0, CHAR_LENGTH_MAP[type])}..`
     }
   }, [])
 
   return (
     <motion.div
-      className="text-sm flex items-center gap-x-2"
-      whileHover={{ scale: 1.3 }}
+      className="text-sm flex items-center gap-x-1"
+      whileHover={{ scale: 1.05 }}
       onClick={(event) => {
         onClick(event)
       }}
@@ -45,7 +53,14 @@ const MyEvent = ({ setPopoverOpen, type, title, setTriggerEvent }) => {
           "#006FEE": type === EventTypes.personal,
         })}
       />
-      <div>{getFormattedTitle(title)}</div>
+      <div className="block md:hidden">{""}</div>
+      <div className="hidden md:block lg:hidden">
+        {getFormattedTitle(title, "sm")}
+      </div>
+      <div className="hidden lg:block xl:hidden">
+        {getFormattedTitle(title, "md")}
+      </div>
+      <div className="hidden xl:block">{getFormattedTitle(title, "lg")}</div>
     </motion.div>
   )
 }

@@ -15,5 +15,5 @@ def add_event_api(event: CreateEventRequest, session=Depends(get_db)):
   return add_event(session, event)
 
 @router.get('/all')
-def get_all_events_api(session=Depends(get_db), month: int | None = None):
-  return get_all_events(session, month)
+def get_all_events_api(session=Depends(get_db), month: int | None = None, year: int | None = None):
+  return get_all_events(session, month, year)

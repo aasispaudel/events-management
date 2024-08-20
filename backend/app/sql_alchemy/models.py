@@ -2,8 +2,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from typing import Optional
 from sqlalchemy import DateTime, ARRAY, String
 
+
 class Base(DeclarativeBase):
   pass
+
 
 class Event(Base):
   __tablename__ = 'event'

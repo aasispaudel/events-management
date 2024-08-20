@@ -1,12 +1,18 @@
 "use client"
 
+import { TimezoneContext } from "@/app/Providers"
+import fetchHolidays from "@/lib/api/fetch-holidays"
+import fetchEvents from "@/lib/api/fetch-user-events"
 import { DAYS_OF_WEEK } from "@/lib/constants"
-import useGetHolidays from "@/lib/hooks/useGetHolidays"
-import { CalendarDate } from "@internationalized/date"
+import { CalendarDate, toCalendarDate } from "@internationalized/date"
 import { Button } from "@nextui-org/react"
-import { useState } from "react"
+import { useAsyncList } from "@react-stately/data"
+import { useContext, useState } from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons/chevron"
-import SingleDateBlock from "./SingleDataBlock"
+import SelectCountries from "../simple/SelectCountries"
+import SingleDateBlock from "./SingleDateBlock"
+
+const REAL_HOLIDAY_FETCH = false
 
 export function Calendar() {
   const today = new Date()
@@ -31,10 +37,33 @@ export function Calendar() {
     }
   }
 
-  const { holidays } = useGetHolidays({ country: "US", year: currentYear })
+  const holidays = useAsyncList({
+    async load(signal) {
+      let { data, error } = await fetchHolidays({
+        fetchornot: REAL_HOLIDAY_FETCH,
+        country: "US",
+        year: currentYear,
+        signal,
+      })
+
+      return { items: data }
+    },
+  })
+
+  const events = useAsyncList({
+    async load(signal) {
+      let { data, error } = await fetchEvents({
+        month: currentMonth + 1,
+        year: currentYear,
+        signal,
+      })
+
+      return { items: data }
+    },
+  })
 
   const findAllHolidays = (day) => {
-    const foundHolidays = holidays.filter((holiday) => {
+    const foundHolidays = holidays.items.filter((holiday) => {
       return (
         holiday.date.compare(
           new CalendarDate(currentYear, currentMonth + 1, day)
@@ -45,15 +74,34 @@ export function Calendar() {
     return foundHolidays
   }
 
+  const findAllEvents = (day) => {
+    const foundEvents = events.items.filter((event) => {
+      return (
+        toCalendarDate(event.eventFrom).compare(
+          new CalendarDate(currentYear, currentMonth + 1, day)
+        ) === 0
+      )
+    })
+
+    return foundEvents
+  }
+
+  const { currentTimezone } = useContext(TimezoneContext)
+
   return (
     <div className="bg-white text-black dark:bg-black dark:text-white rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-lg font-medium">
-          {new Date(currentYear, currentMonth).toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          })}
+        <div className="flex gap-x-4 items-center w-full">
+          <div className="text-lg font-medium">
+            {new Date(currentYear, currentMonth).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
+          </div>
+
+          <SelectCountries />
         </div>
+
         <div className="flex items-center gap-2">
           <Button
             onClick={handlePreviousMonth}
@@ -81,12 +129,15 @@ export function Calendar() {
           <div key={`empty-${day}`} className="text-center text-sm"></div>
         ))}
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
-          <SingleDateBlock
-            day={day}
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            holidays={findAllHolidays(day)}
-          />
+          <div key={day}>
+            <SingleDateBlock
+              day={day}
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              holidays={findAllHolidays(day)}
+              events={findAllEvents(day)}
+            />
+          </div>
         ))}
       </div>
     </div>

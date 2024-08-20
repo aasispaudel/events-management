@@ -17,15 +17,17 @@ def add_event(session: Session, event: CreateEventRequest):
     raise HTTPException(status_code=500, detail='Could not save right now. Please try again later')
 
 
-def get_all_events(session: Session, month: int | None = None):
+def get_all_events(session: Session, month: int | None = None,  year: int | None = None):
   if month is None:
     month = datetime.now().month
+  if year is None:
+    year = datetime.now().year
 
   try:
     current_year = datetime.now().year
     events = session.scalars(
                 select(Event)
-                .where(extract('YEAR', Event.event_from) == current_year)
+                .where(extract('YEAR', Event.event_from) == year)
                 .where(extract('MONTH', Event.event_from) == month)
     ).all()
     return EventsResponse.model_validate({'events': events})

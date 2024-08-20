@@ -1,7 +1,10 @@
+import "client-only"
+
 export const fetchCountries = async () => {
   const url = "https://holidayapi.com/v1/countries"
   const params = new URLSearchParams({
-    pretty: "true",
+    public: true,
+    pretty: true,
     key: "f42ac06c-5777-4399-afb5-6e15a24565c5",
   })
 
@@ -18,11 +21,25 @@ export const fetchCountries = async () => {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const data = await response.json()
+    let data = await response.json()
+    data = formatCountries(data.countries)
+
+    const dataJsonString = JSON.stringify(data, null, 2)
+    console.log({ dataJsonString })
+    navigator.clipboard.writeText(dataJsonString)
     return { data }
     console.log(data)
   } catch (error) {
     return { error }
     console.error("Error fetching countries:", error)
   }
+}
+
+const formatCountries = (countries) => {
+  return countries.map((country) => {
+    return {
+      code: country.code,
+      name: country.name,
+    }
+  })
 }
