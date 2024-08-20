@@ -25,10 +25,8 @@ export const fetchCountries = async () => {
     data = formatCountries(data.countries)
 
     const dataJsonString = JSON.stringify(data, null, 2)
-    console.log({ dataJsonString })
     navigator.clipboard.writeText(dataJsonString)
     return { data }
-    console.log(data)
   } catch (error) {
     return { error }
     console.error("Error fetching countries:", error)

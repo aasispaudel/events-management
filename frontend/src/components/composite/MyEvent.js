@@ -36,7 +36,6 @@ const MyEvent = ({
 
     setTriggerEvent({ title, type, id, event_from, event_to, participants })
     setPopoverOpen(true)
-    console.log("Event clicked")
   }
 
   const getFormattedTitle = useCallback((title, type = "lg") => {

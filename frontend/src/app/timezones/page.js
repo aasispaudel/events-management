@@ -33,8 +33,6 @@ const page = () => {
     setTimezones(timezoneWork())
   }, [])
 
-  console.log({ timezones })
-
   return <div className="flex justify-center mt-20">{"hello"}</div>
 }
 

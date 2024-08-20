@@ -11,8 +11,6 @@ const DeleteEvent = ({ eventId }) => {
   const onDelete = async () => {
     setDeleting(true)
 
-    console.log({ eventId })
-
     const { data, error } = await deleteEvent({ eventId })
     if (error) {
       toast.error("Could not delete now. Try later")

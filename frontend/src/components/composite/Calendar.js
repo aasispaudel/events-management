@@ -106,8 +106,6 @@ export function Calendar() {
     return foundHolidays
   }
 
-  console.log({ events })
-
   const findAllEvents = (day) => {
     const foundEvents = events.items.filter((event) => {
       return (

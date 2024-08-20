@@ -15,13 +15,11 @@ const useGetHolidays = ({ country, year = "2024" }) => {
 
     fetchHolidays({ fetchornot: REAL_FETCH, country, year })
       .then(({ data }) => {
-        console.log("ia m here")
         setHolidays(formatHolidays(data.holidays))
         setError(null)
         setLoading(false)
       })
       .catch((e) => {
-        console.log("Holiday fetch error", { error })
         setError(e.error ? e.error : e)
         setHolidays([])
         setLoading(false)

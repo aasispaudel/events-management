@@ -22,8 +22,6 @@ const EventPicker = ({
 }) => {
   const { currentTimezone } = useContext(TimezoneContext)
 
-  console.log({ eventValues })
-
   const defaultValues = eventValues ? { ...eventValues } : { participants: [] }
 
   const {
@@ -65,7 +63,6 @@ const EventPicker = ({
     setValue("event_to", toFormValue)
 
     return () => {
-      console.log("Resetting")
       nullifyTriggerEvent()
       reset()
     }
@@ -78,8 +75,6 @@ const EventPicker = ({
       ? dateFrom1TimeFrom2(date, value, currentTimezone).toAbsoluteString()
       : null
 
-    console.log({ fromValue: value, zonedFrom: zonedValue, currentTimezone })
-
     setValue("event_from", zonedValue)
   }
 
@@ -89,8 +84,6 @@ const EventPicker = ({
     const zonedValue = value
       ? dateFrom1TimeFrom2(date, value, currentTimezone).toAbsoluteString()
       : null
-
-    console.log({ toValue: value, zonedTo: zonedValue })
 
     setValue("event_to", zonedValue)
   }
@@ -126,11 +119,6 @@ const EventPicker = ({
     }
 
     toast.success(`Successfully added your event ${data.title}`)
-    console.log("Adding event", {
-      ...data,
-      type: EventTypes.personal,
-      participants: data.participants ? data.participants : [],
-    })
 
     reset()
   }

@@ -35,8 +35,6 @@ const SelectTimezones = ({ countryCode }) => {
           return
         }
 
-        console.log("Making req for: ", countryCode)
-
         const { data } = await fetchTimeZonesWithCode(countryCode)
         setTimezones(data)
         setSelectedTimezone(data[0].name)

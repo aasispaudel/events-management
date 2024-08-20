@@ -28,8 +28,6 @@ const SelectCountries = () => {
       try {
         const req1 = fetch("data/countries.json")
 
-        console.log({ a: rectifyTimezone(getLocalTimeZone()) })
-
         const r2Url = new URL(`${fastApiUrl}/country-code`)
         r2Url.searchParams.append(
           "timezone",
@@ -39,24 +37,17 @@ const SelectCountries = () => {
 
         const [res1, res2] = await Promise.all([req1, req2])
 
-        console.log("I am here top")
-
         const countries = await res1.json()
         setError(null)
         setCountries(countries)
 
-        console.log("I am here middle")
-
         if (!res2.ok) {
-          console.log({ res2 })
           toast.warning("Something went wrong. Defaultin to US/New_York")
           setSelectedCountry("US")
           return
         }
-        console.log("I am here lower middle")
 
         const data = await res2.json()
-        console.log("I am reaching here", data.country_code)
         setSelectedCountry(data.country_code)
       } catch (error) {
         setCountries([])
