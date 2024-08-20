@@ -1,6 +1,6 @@
 "use client"
 
-import { TimezoneContext } from "@/app/Providers"
+import { CountryContext, TimezoneContext } from "@/app/Providers"
 import fetchHolidays from "@/lib/api/fetch-holidays"
 import fetchEvents from "@/lib/api/fetch-user-events"
 import { DAYS_OF_WEEK } from "@/lib/constants"
@@ -8,6 +8,7 @@ import {
   CalendarDate,
   endOfMonth,
   getLocalTimeZone,
+  parseAbsolute,
   startOfMonth,
   toCalendarDate,
   today,
@@ -23,6 +24,8 @@ const REAL_HOLIDAY_FETCH = false
 
 export function Calendar() {
   const { currentTimezone } = useContext(TimezoneContext)
+  const { country: selectedGlobalCountry } = useContext(CountryContext)
+
   const [todayDate, setTodayDate] = useState(today(getLocalTimeZone()))
 
   useEffect(() => {
@@ -60,11 +63,12 @@ export function Calendar() {
     }
   }
 
+  // Holidays list
   const holidays = useAsyncList({
     async load(signal) {
       let { data, error } = await fetchHolidays({
         fetchornot: REAL_HOLIDAY_FETCH,
-        country: "US",
+        country: selectedGlobalCountry,
         year: currentYear,
         signal,
       })
@@ -72,18 +76,23 @@ export function Calendar() {
       return { items: data }
     },
   })
+  // Modify holiday list with country change
+  useEffect(() => {
+    holidays.reload()
+  }, [selectedGlobalCountry])
 
+  // User events list
   const events = useAsyncList({
     async load(signal) {
       let { data, error } = await fetchEvents({
         month: currentMonth,
         year: currentYear,
-        signal,
       })
 
       return { items: data }
     },
   })
+  // Modify user-events when timezone is changed
 
   const findAllHolidays = (day) => {
     const foundHolidays = holidays.items.filter((holiday) => {
@@ -97,12 +106,14 @@ export function Calendar() {
     return foundHolidays
   }
 
+  console.log({ events })
+
   const findAllEvents = (day) => {
     const foundEvents = events.items.filter((event) => {
       return (
-        toCalendarDate(event.eventFrom).compare(
-          new CalendarDate(currentYear, currentMonth, day)
-        ) === 0
+        toCalendarDate(
+          parseAbsolute(event.event_from, currentTimezone.name)
+        ).compare(new CalendarDate(currentYear, currentMonth, day)) === 0
       )
     })
 
@@ -156,6 +167,12 @@ export function Calendar() {
               blockDate={new CalendarDate(currentYear, currentMonth, day)}
               holidays={findAllHolidays(day)}
               events={findAllEvents(day)}
+              revalidateEvents={() => {
+                events.reload()
+              }}
+              addEvent={(event) => {
+                events.append(event)
+              }}
             />
           </div>
         ))}

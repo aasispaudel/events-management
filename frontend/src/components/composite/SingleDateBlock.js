@@ -8,9 +8,14 @@ import { useState } from "react"
 import EventPicker from "./EventPicker"
 import HolidayDetail from "./HolidayDetail"
 import MyEvent from "./MyEvent"
-import PersonalDetail from "./PersonalDetail"
 
-const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
+const SingleDateBlock = ({
+  todayDate,
+  blockDate,
+  holidays,
+  events,
+  revalidateEvents,
+}) => {
   const isToday = () =>
     blockDate.day === todayDate.day &&
     blockDate.month === todayDate.month &&
@@ -40,8 +45,8 @@ const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => {
-            setTriggerEvent(null)
             setIsOpen(true)
+            setTriggerEvent({ type: "new" })
           }}
         >
           <div className="flex flex-col w-full items-start gap-y-1">
@@ -69,6 +74,9 @@ const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
                 title={myEvent.title}
                 type={myEvent.type}
                 id={myEvent.id}
+                participants={myEvent.participants}
+                event_from={myEvent.event_from}
+                event_to={myEvent.event_to}
               />
             ))}
           </div>
@@ -78,16 +86,25 @@ const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
       <PopoverContent className="bg-slate-100 dark:bg-neutral-900 border-none w-[25rem] md:w-[30rem] rounded-lg">
         {triggerEvent ? (
           triggerEvent.type === EventTypes.personal ? (
-            <EventPicker date={blockDate} eventValues={triggerEvent}/>
+            <EventPicker
+              date={blockDate}
+              eventValues={triggerEvent}
+              nullifyTriggerEvent={() => setTriggerEvent(null)}
+              revalidateEvents={revalidateEvents}
+            />
+          ) : triggerEvent.type === "new" ? (
+            <EventPicker
+              date={blockDate}
+              nullifyTriggerEvent={() => setTriggerEvent(null)}
+              revalidateEvents={revalidateEvents}
+            />
           ) : (
             <HolidayDetail
               title={triggerEvent.title}
               type={triggerEvent.type}
             />
           )
-        ) : (
-          <EventPicker date={blockDate} />
-        )}
+        ) : null}
       </PopoverContent>
     </Popover>
   )

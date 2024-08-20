@@ -30,9 +30,12 @@ const SelectTimezones = ({ countryCode }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (countryCode.length !== 2) {
+        if (countryCode?.length !== 2) {
           setTimezones([])
+          return
         }
+
+        console.log("Making req for: ", countryCode)
 
         const { data } = await fetchTimeZonesWithCode(countryCode)
         setTimezones(data)

@@ -1,19 +1,30 @@
 "use client"
 
 import { TimezoneContext } from "@/app/Providers"
-import { addEvent } from "@/lib/api/add-event"
+import { updateEvent } from "@/lib/api/event-mutations"
 import { dateFrom1TimeFrom2 } from "@/lib/misc/time-helpers"
 import addQuestionSchema from "@/lib/schema/event-picker-schema"
+import { hasValue } from "@/lib/utils"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { now, toTime } from "@internationalized/date"
+import { now, parseAbsolute, toTime } from "@internationalized/date"
 import { Button, Input, Textarea, TimeInput } from "@nextui-org/react"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import DeleteEvent from "../simple/DeleteEvent"
 import Participants from "./Participants"
 
-const EventPicker = ({ date, eventValues }) => {
+const EventPicker = ({
+  date,
+  eventValues,
+  nullifyTriggerEvent,
+  revalidateEvents,
+}) => {
   const { currentTimezone } = useContext(TimezoneContext)
+
+  console.log({ eventValues })
+
+  const defaultValues = eventValues ? { ...eventValues } : { participants: [] }
 
   const {
     register,
@@ -24,7 +35,7 @@ const EventPicker = ({ date, eventValues }) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(addQuestionSchema),
-    defaultValues: { participants: [] },
+    defaultValues,
   })
 
   const [from, setFrom] = useState()
@@ -33,15 +44,31 @@ const EventPicker = ({ date, eventValues }) => {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    let from = now(currentTimezone.name).add({ minutes: 15 })
-    from = dateFrom1TimeFrom2(date, from, currentTimezone)
+    let from, to, fromFormValue, toFormValue
+    if (hasValue(eventValues?.event_from)) {
+      from = parseAbsolute(eventValues.event_from, currentTimezone.name)
+      fromFormValue = eventValues.event_from
+      to = parseAbsolute(eventValues.event_to, currentTimezone.name)
+      toFormValue = eventValues.event_to
+    } else {
+      from = now(currentTimezone.name).add({ minutes: 15 })
+      from = dateFrom1TimeFrom2(date, from, currentTimezone)
+      to = from.add({ minutes: 30 })
+      fromFormValue = from.toAbsoluteString()
+      toFormValue = to.toAbsoluteString()
+    }
 
-    const to = from.add({ minutes: 30 })
     setFrom(toTime(from))
     setTo(toTime(to))
 
-    setValue("event_from", from.toAbsoluteString())
-    setValue("event_to", to.toAbsoluteString())
+    setValue("event_from", fromFormValue)
+    setValue("event_to", toFormValue)
+
+    return () => {
+      console.log("Resetting")
+      nullifyTriggerEvent()
+      reset()
+    }
   }, [])
 
   const setTimeFrom = (value) => {
@@ -70,24 +97,47 @@ const EventPicker = ({ date, eventValues }) => {
 
   const onSubmit = async (d) => {
     setLoading(true)
+    if (eventValues) {
+      await onSubmitUpdate(d)
+    } else {
+      await onSubmitAdd(d)
+    }
+    setLoading(false)
+    revalidateEvents()
+  }
+
+  const onSubmitUpdate = async (d) => {
+    const { data, error } = await updateEvent({ myEvent: d })
+    if (error) {
+      console.log({ data, error })
+
+      toast.error("Error updating event. Try later.")
+      return
+    }
+
+    toast.success(`Successfully updated your event ${data.title}`)
+  }
+
+  const onSubmitAdd = async (d) => {
     const { data, error } = await addEvent({ myEvent: d })
     if (error) {
       toast.error("Error adding event. Try later.")
-      setLoading(false)
       return
     }
 
     toast.success(`Successfully added your event ${data.title}`)
-    setLoading(false)
+    console.log("Adding event", {
+      ...data,
+      type: EventTypes.personal,
+      participants: data.participants ? data.participants : [],
+    })
+
     reset()
   }
-
-  console.log({ errors })
 
   const addParticipant = (event) => {
     if (event.key === "Enter") {
       event.preventDefault()
-      console.log("Value changed", event.target.value)
       setValue("participants", [...watch("participants"), event.target.value])
       setCurrentParticipant("")
     }
@@ -99,7 +149,9 @@ const EventPicker = ({ date, eventValues }) => {
        dark:text-white"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="text-lg my-4">New Event</div>
+      <div className="text-lg my-4">
+        {eventValues ? "Update Event" : "New Event"}
+      </div>
       <Input
         size="sm"
         {...register("title")}
@@ -163,16 +215,19 @@ const EventPicker = ({ date, eventValues }) => {
       {errors?.event_to && (
         <p className="text-xs text-danger">{errors?.event_to?.message}</p>
       )}
-      <Button
-        size="sm"
-        variant="ghost"
-        color="success"
-        className="mt-4"
-        type="submit"
-        isLoading={loading}
-      >
-        Create Event
-      </Button>
+      <div className="flex w-full mt-4 items-center gap-x-5">
+        <Button
+          size="sm"
+          variant="ghost"
+          color="success"
+          className="w-full"
+          type="submit"
+          isLoading={loading}
+        >
+          {!eventValues ? "Create Event" : "Update Event"}
+        </Button>
+        {eventValues && <DeleteEvent eventId={eventValues.id} />}
+      </div>
     </form>
   )
 }

@@ -1,5 +1,6 @@
 import { parseDate } from "@internationalized/date"
 import { EventTypes } from "../constants"
+import { hasValue } from "../utils"
 import { sampleHolidays } from "./sample-holidays"
 
 const fetchHolidays = async ({ fetchornot, country, year, signal }) => {
@@ -13,6 +14,11 @@ const fetchHolidays = async ({ fetchornot, country, year, signal }) => {
 
       return { data: [], error: e }
     }
+  }
+
+  // Safety against null values
+  if (hasValue(country) && country.length !== 2) {
+    return []
   }
 
   const url = new URL("https://holidayapi.com/v1/holidays")

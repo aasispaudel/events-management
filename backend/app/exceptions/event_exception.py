@@ -4,6 +4,7 @@ from fastapi import HTTPException
 
 class ErrorCodes(Enum):
   DEFAULT = 'DEFAULT'
+  EVENT_NOT_FOUND = 'EVENT_NOT_FOUND'
   pass
 
 class EventException(HTTPException):

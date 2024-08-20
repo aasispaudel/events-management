@@ -15,13 +15,15 @@ load_dotenv()
 
 class EmailBody(BaseModel):
   subject: str
-  event_name: str
-  event_date: str
-  event_time: str
+  event_name: str | None = None
+  event_date: str | None = None
+  event_time: str | None = None
 
 class SendEmailType(Enum):
   confirmation = 'confirmation'
   reminder = 'reminder'
+  update = 'update'
+  delete = 'delete'
 
 
 conf = ConnectionConfig(
@@ -85,8 +87,15 @@ async def send_email_sample():
 async def send_email(email: EmailBody,
                      send_email_type: SendEmailType):
   print(f'Creating {send_email_type} email')
-  template = '_confirmation_template.html' if send_email_type == SendEmailType.confirmation \
-    else '_reminder_template.html'
+  if send_email_type == SendEmailType.update:
+    template = '_update_confirmation_template.html'
+  elif send_email_type == SendEmailType.confirmation:
+    template = '_confirmation_template.html'
+  elif send_email_type == SendEmailType.delete:
+    template = '_delete_template.html'
+  else:
+    template = '_reminder_template.html'
+
   template = env.get_template(template)
   email_content = template.render(
     event_name=email.event_name,

@@ -1,25 +1,63 @@
 "use client"
 
+import { CountryContext } from "@/app/Providers"
+import { fastApiUrl } from "@/lib/env"
+import { rectifyTimezone } from "@/lib/misc/rectify"
+import { getLocalTimeZone } from "@internationalized/date"
 import { Select, SelectItem } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import { toast } from "sonner"
 import SelectTimezones from "./SelectTimezones"
 
 const SelectCountries = () => {
+  const { setCountry: setGlobalCountry } = useContext(CountryContext)
+
   const [countries, setCountries] = useState([])
   const [error, setError] = useState(null)
 
-  const [selectedCountry, setSelectedCountry] = useState(new Set(["US"]))
+  const [selectedCountry, setSelectedCountry] = useState()
 
-  console.log({ selectedCountry })
+  useEffect(() => {
+    if (selectedCountry) {
+      setGlobalCountry(selectedCountry)
+    }
+  }, [selectedCountry])
 
   useEffect(() => {
     ;(async () => {
       try {
-        const res = await fetch("data/countries.json")
-        const data = await res.json()
+        const req1 = fetch("data/countries.json")
 
+        console.log({ a: rectifyTimezone(getLocalTimeZone()) })
+
+        const r2Url = new URL(`${fastApiUrl}/country-code`)
+        r2Url.searchParams.append(
+          "timezone",
+          rectifyTimezone(getLocalTimeZone())
+        )
+        const req2 = fetch(r2Url)
+
+        const [res1, res2] = await Promise.all([req1, req2])
+
+        console.log("I am here top")
+
+        const countries = await res1.json()
         setError(null)
-        setCountries(data)
+        setCountries(countries)
+
+        console.log("I am here middle")
+
+        if (!res2.ok) {
+          console.log({ res2 })
+          toast.warning("Something went wrong. Defaultin to US/New_York")
+          setSelectedCountry("US")
+          return
+        }
+        console.log("I am here lower middle")
+
+        const data = await res2.json()
+        console.log("I am reaching here", data.country_code)
+        setSelectedCountry(data.country_code)
       } catch (error) {
         setCountries([])
         setError(error)
@@ -28,7 +66,8 @@ const SelectCountries = () => {
     })()
   }, [])
 
-  const onCountrySelect = (value) => {
+  const onCountrySelect = (e) => {
+    const value = e.target.value
     if (value.size === 0) return
     setSelectedCountry(value)
   }
@@ -40,8 +79,8 @@ const SelectCountries = () => {
         size="sm"
         label="Select country"
         items={countries}
-        selectedKeys={selectedCountry}
-        onSelectionChange={onCountrySelect}
+        selectedKeys={[selectedCountry]}
+        onChange={onCountrySelect}
       >
         {(country) => (
           <SelectItem className="text-black dark:text-white" key={country.code}>
@@ -50,7 +89,7 @@ const SelectCountries = () => {
         )}
       </Select>
 
-      <SelectTimezones countryCode={Array.from(selectedCountry)[0]} />
+      <SelectTimezones countryCode={selectedCountry} />
     </div>
   )
 }

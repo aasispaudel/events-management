@@ -1,8 +1,7 @@
-import { parseAbsolute } from "@internationalized/date"
 import { EventTypes } from "../constants"
 import { fastApiUrl } from "../env"
 
-const fetchEvents = async ({ month, year, signal }) => {
+const fetchEvents = async ({ month, year }) => {
   const url = new URL(`${fastApiUrl}/api/event/all`)
 
   if (month) {
@@ -29,17 +28,14 @@ const fetchEvents = async ({ month, year, signal }) => {
 }
 
 const formatEvents = (events) => {
-  return events.map((event) => {
+  const f = events.map((event) => {
     return {
-      id: event.id,
-      eventFrom: parseAbsolute(event.event_from),
-      eventTo: parseAbsolute(event.event_to),
-      title: event.title,
+      ...event,
       type: EventTypes.personal,
-      participants: event.participants,
-      description: event.description,
+      participants: event.participants ? event.participants : [],
     }
   })
+  return f
 }
 
 export default fetchEvents

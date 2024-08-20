@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from pydantic import BaseModel
 import pytz
 
@@ -16,3 +17,11 @@ def get_timezones_list(code: str):
   #   my_timezones.append(TimezoneMap(offset=offset, name=tz))
 
   return [TimezoneMap(name=t) for t in tzs]
+
+
+def get_country_code(timezone: str):
+  for country_code, timezones in pytz.country_timezones.items():
+    if timezone in timezones:
+      return {'country_code': country_code}
+
+  raise HTTPException(status_code=404, detail='Country code not found')
