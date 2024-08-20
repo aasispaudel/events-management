@@ -12,6 +12,7 @@ import {
 import { Button, Input, Textarea, TimeInput } from "@nextui-org/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import Participants from "./Participants"
 
 const EventPicker = ({ date }) => {
@@ -29,6 +30,7 @@ const EventPicker = ({ date }) => {
   const [from, setFrom] = useState()
   const [to, setTo] = useState()
   const [currentParticipant, setCurrentParticipant] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let from = now(getLocalTimeZone()).add({ minutes: 15 })
@@ -65,9 +67,16 @@ const EventPicker = ({ date }) => {
   }
 
   const onSubmit = async (d) => {
+    setLoading(true)
     const { data, error } = await addEvent({ myEvent: d })
+    if (error) {
+      toast.error("Error adding event. Try later.")
+      setLoading(false)
+      return
+    }
 
-    console.log({ data, error })
+    toast.success(`Successfully added your event ${data.title}`)
+    setLoading(false)
   }
 
   const addParticipant = (event) => {
@@ -89,7 +98,7 @@ const EventPicker = ({ date }) => {
     >
       <div className="text-lg my-4">New Event</div>
       <Input
-        size="lg"
+        size="sm"
         {...register("title")}
         labelPlacement="outside"
         label="Title"
@@ -109,6 +118,7 @@ const EventPicker = ({ date }) => {
       />
       <div className="flex w-full">
         <TimeInput
+          size="sm"
           value={from}
           onChange={setTimeFrom}
           type="time"
@@ -117,6 +127,7 @@ const EventPicker = ({ date }) => {
           variant="underlined"
         />
         <TimeInput
+          size="sm"
           value={to}
           onChange={setTimeTo}
           type="time"
@@ -126,7 +137,7 @@ const EventPicker = ({ date }) => {
         />
       </div>
       <Input
-        size="lg"
+        size="sm"
         labelPlacement="outside"
         label="Participants"
         variant="underlined"
@@ -152,6 +163,7 @@ const EventPicker = ({ date }) => {
         color="success"
         className="mt-4"
         type="submit"
+        isLoading={loading}
       >
         Create Event
       </Button>

@@ -1,34 +1,20 @@
 import { cn } from "@/lib/utils"
 // import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react"
 import { EventTypes } from "@/lib/constants"
-import { CalendarDate } from "@internationalized/date"
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react"
+import clsx from "clsx"
 import { motion } from "framer-motion"
-import { useCallback, useState } from "react"
+import { useState } from "react"
 import EventPicker from "./EventPicker"
 import HolidayDetail from "./HolidayDetail"
 import MyEvent from "./MyEvent"
 import PersonalDetail from "./PersonalDetail"
 
-const SingleDateBlock = ({
-  day,
-  currentMonth,
-  currentYear,
-  holidays,
-  events,
-}) => {
-  const today = new Date()
-
-  const isToday = useCallback(
-    (today) => {
-      return (
-        day === today.getDate() &&
-        currentMonth === today.getMonth() &&
-        currentYear === today.getFullYear()
-      )
-    },
-    [today]
-  )
+const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
+  const isToday = () =>
+    blockDate.day === todayDate.day &&
+    blockDate.month === todayDate.month &&
+    blockDate.year === todayDate.year
 
   const [triggerEvent, setTriggerEvent] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -43,12 +29,12 @@ const SingleDateBlock = ({
     >
       <PopoverTrigger className="w-full">
         <motion.div
-          key={day}
+          key={blockDate.day}
           className={cn(
             `text-center bg-default h-[100%] rounded-lg text-lg font-medium p-4 aspect-square
        hover:bg-default hover:cursor-pointer dark:hover:bg-default-300`,
             {
-              "bg-success-400 dark:bg-success-400": isToday(today),
+              "bg-success-400 dark:bg-success-400 tex-xs": isToday(),
             }
           )}
           whileHover={{ scale: 1.05 }}
@@ -60,7 +46,8 @@ const SingleDateBlock = ({
         >
           <div className="flex flex-col w-full items-start gap-y-1">
             <div className="flex justify-center w-full">
-              {!isToday(today) ? day : `${day} (Today)`}
+              {blockDate.day}
+              <span className={clsx({ hidden: !isToday() })}>Todoay</span>
             </div>
             {holidays.map((holiday) => (
               <MyEvent
@@ -97,9 +84,7 @@ const SingleDateBlock = ({
             />
           )
         ) : (
-          <EventPicker
-            date={new CalendarDate(currentYear, currentMonth + 1, day)}
-          />
+          <EventPicker date={blockDate} />
         )}
       </PopoverContent>
     </Popover>

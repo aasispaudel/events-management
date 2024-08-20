@@ -4,10 +4,17 @@ import { TimezoneContext } from "@/app/Providers"
 import fetchHolidays from "@/lib/api/fetch-holidays"
 import fetchEvents from "@/lib/api/fetch-user-events"
 import { DAYS_OF_WEEK } from "@/lib/constants"
-import { CalendarDate, toCalendarDate } from "@internationalized/date"
+import {
+  CalendarDate,
+  endOfMonth,
+  getLocalTimeZone,
+  startOfMonth,
+  toCalendarDate,
+  today,
+} from "@internationalized/date"
 import { Button } from "@nextui-org/react"
 import { useAsyncList } from "@react-stately/data"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons/chevron"
 import SelectCountries from "../simple/SelectCountries"
 import SingleDateBlock from "./SingleDateBlock"
@@ -15,22 +22,47 @@ import SingleDateBlock from "./SingleDateBlock"
 const REAL_HOLIDAY_FETCH = false
 
 export function Calendar() {
-  const today = new Date()
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth())
-  const [currentYear, setCurrentYear] = useState(today.getFullYear())
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay()
+  const { currentTimezone } = useContext(TimezoneContext)
+  const [todayDate, setTodayDate] = useState(today(getLocalTimeZone()))
+
+  useEffect(() => {
+    if (currentTimezone) {
+      setTodayDate(today(currentTimezone.name))
+    }
+  }, [currentTimezone])
+
+  const [currentMonth, setCurrentMonth] = useState(todayDate.month)
+  const [currentYear, setCurrentYear] = useState(todayDate.year)
+
+  // Calculate days in the current month
+  const start = startOfMonth(new CalendarDate(currentYear, currentMonth, 1))
+  const end = endOfMonth(start)
+  const daysInMonth = end.day
+
+  console.log({
+    currentMonth,
+    currentYear,
+    currentTimezone,
+    start,
+    end,
+    daysInMonth,
+  })
+
+  // Get the day of the week for the first day of the month
+  // Need to - 1 because in native Date, date starts from 0, in internationlized/date date starts from 1
+  const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay()
+
   const handlePreviousMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11)
+    if (currentMonth === 1) {
+      setCurrentMonth(12)
       setCurrentYear(currentYear - 1)
     } else {
       setCurrentMonth(currentMonth - 1)
     }
   }
   const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0)
+    if (currentMonth === 12) {
+      setCurrentMonth(1)
       setCurrentYear(currentYear + 1)
     } else {
       setCurrentMonth(currentMonth + 1)
@@ -53,7 +85,7 @@ export function Calendar() {
   const events = useAsyncList({
     async load(signal) {
       let { data, error } = await fetchEvents({
-        month: currentMonth + 1,
+        month: currentMonth,
         year: currentYear,
         signal,
       })
@@ -66,7 +98,7 @@ export function Calendar() {
     const foundHolidays = holidays.items.filter((holiday) => {
       return (
         holiday.date.compare(
-          new CalendarDate(currentYear, currentMonth + 1, day)
+          new CalendarDate(currentYear, currentMonth, day)
         ) === 0
       )
     })
@@ -78,7 +110,7 @@ export function Calendar() {
     const foundEvents = events.items.filter((event) => {
       return (
         toCalendarDate(event.eventFrom).compare(
-          new CalendarDate(currentYear, currentMonth + 1, day)
+          new CalendarDate(currentYear, currentMonth, day)
         ) === 0
       )
     })
@@ -86,14 +118,14 @@ export function Calendar() {
     return foundEvents
   }
 
-  const { currentTimezone } = useContext(TimezoneContext)
+  console.log({ firstDayOfMonth })
 
   return (
     <div className="bg-white text-black dark:bg-black dark:text-white rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-x-4 items-center w-full">
           <div className="text-lg font-medium">
-            {new Date(currentYear, currentMonth).toLocaleString("default", {
+            {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
               month: "long",
               year: "numeric",
             })}
@@ -131,9 +163,8 @@ export function Calendar() {
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
           <div key={day}>
             <SingleDateBlock
-              day={day}
-              currentMonth={currentMonth}
-              currentYear={currentYear}
+              todayDate={todayDate}
+              blockDate={new CalendarDate(currentYear, currentMonth, day)}
               holidays={findAllHolidays(day)}
               events={findAllEvents(day)}
             />

@@ -1,10 +1,11 @@
 "use client"
 
 import { TimezoneContext } from "@/app/Providers"
-import { fastApiUrl } from "@/lib/env"
+import { fetchTimeZonesWithCode } from "@/lib/api/fetch-timezones-with-code"
 import { makeReadableOffset } from "@/lib/misc/make-readable-offset"
 import { Select, SelectItem } from "@nextui-org/react"
 import { useContext, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 const SelectTimezones = ({ countryCode }) => {
   const [timezones, setTimezones] = useState([])
@@ -14,7 +15,6 @@ const SelectTimezones = ({ countryCode }) => {
   const onItemSelect = (e) => {
     const value = e.target.value
     if (value === "") return
-
     setSelectedTimezone(value)
   }
 
@@ -34,20 +34,17 @@ const SelectTimezones = ({ countryCode }) => {
           setTimezones([])
         }
 
-        const res = await fetch(`${fastApiUrl}/timezones/${countryCode}`)
-
-        const data = await res.json()
-
-        if (!res.ok || data?.length <= 0) {
-          setTimezones([])
-          return
-        }
+        const { data } = await fetchTimeZonesWithCode(countryCode)
         setTimezones(data)
-        setSelectedTimezone("America/New_York")
+        setSelectedTimezone(data[0].name)
       } catch (error) {
         console.log({ error })
 
-        setTimezones([])
+        toast.warning("No timezones for this country supported", {
+          description: "Using default timezone: 'America/New_York'",
+        })
+
+        setTimezones(["America/New_York"])
       }
     })()
   }, [countryCode])

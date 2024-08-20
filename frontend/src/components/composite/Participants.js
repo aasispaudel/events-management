@@ -8,7 +8,7 @@ const Participants = ({ participants, removeParticipant }) => {
   const [hovering, setHovering] = useState(null)
 
   return (
-    <div className="flex flex-wrap gap-x-2">
+    <div className="flex flex-wrap gap-x-2 text-sm">
       {participants.map((participant, index) => (
         <motion.div
           key={`${participant}${index}`}

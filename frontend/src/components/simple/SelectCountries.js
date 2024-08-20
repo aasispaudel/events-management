@@ -28,6 +28,11 @@ const SelectCountries = () => {
     })()
   }, [])
 
+  const onCountrySelect = (value) => {
+    if (value.size === 0) return
+    setSelectedCountry(value)
+  }
+
   return (
     <div className="flex gap-x-2 w-full">
       <Select
@@ -36,7 +41,7 @@ const SelectCountries = () => {
         label="Select country"
         items={countries}
         selectedKeys={selectedCountry}
-        onSelectionChange={setSelectedCountry}
+        onSelectionChange={onCountrySelect}
       >
         {(country) => (
           <SelectItem key={country.code}>{country.name}</SelectItem>
