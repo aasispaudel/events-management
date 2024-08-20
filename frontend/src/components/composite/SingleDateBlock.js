@@ -45,9 +45,11 @@ const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
           }}
         >
           <div className="flex flex-col w-full items-start gap-y-1">
-            <div className="flex justify-center w-full">
+            <div className="flex justify-center items-center w-full">
               {blockDate.day}
-              <span className={clsx({ hidden: !isToday() })}>Todoay</span>
+              <span className={clsx("text-sm ml-2", { hidden: !isToday() })}>
+                (Today)
+              </span>
             </div>
             {holidays.map((holiday) => (
               <MyEvent

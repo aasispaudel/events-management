@@ -51,6 +51,7 @@ const SelectTimezones = ({ countryCode }) => {
 
   return (
     <Select
+      className="dark:text-white text-black"
       size="sm"
       label="Timezone"
       items={timezones}
@@ -60,7 +61,7 @@ const SelectTimezones = ({ countryCode }) => {
     >
       {(tz) => (
         <SelectItem key={tz.name} textValue={tz.name}>
-          <div className="flex w-full justify-between">
+          <div className="flex w-full justify-between text-black dark:text-white">
             <div> {tz.name}</div>
             <div>{makeReadableOffset(tz.offset)}</div>
           </div>

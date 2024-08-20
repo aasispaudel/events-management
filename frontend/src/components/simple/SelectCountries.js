@@ -36,7 +36,7 @@ const SelectCountries = () => {
   return (
     <div className="flex gap-x-2 w-full">
       <Select
-        className=""
+        className="text-black dark:text-white"
         size="sm"
         label="Select country"
         items={countries}
@@ -44,7 +44,9 @@ const SelectCountries = () => {
         onSelectionChange={onCountrySelect}
       >
         {(country) => (
-          <SelectItem key={country.code}>{country.name}</SelectItem>
+          <SelectItem className="text-black dark:text-white" key={country.code}>
+            {country.name}
+          </SelectItem>
         )}
       </Select>
 

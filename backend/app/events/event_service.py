@@ -5,9 +5,9 @@ from app.sql_alchemy.models import Event
 from app.events.models import CreateEventRequest, EventsResponse, EventResponse
 from datetime import datetime
 
-def add_event(session: Session, event: CreateEventRequest):
+def add_event(session: Session, event_model: CreateEventRequest):
   try:
-    event = Event(**event.model_dump())
+    event = Event(**event_model.model_dump())
     session.add(event)
     session.commit()
     session.refresh(event)

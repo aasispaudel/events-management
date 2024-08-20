@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.events.routes import router as event_router
 from app.exceptions.event_exception import EventException
-from pytz import country_timezones
+from app.email.get_fastapi_mail import router as email_router
 
 from app.timezones.timezones_service import get_timezones_list, TimezoneMap
 
@@ -34,6 +34,7 @@ async def custom_http_exception_handler(request: Request, exc: EventException):
     )
 
 app.include_router(event_router)
+app.include_router(email_router)
 
 @app.get("/hello")
 def get_hello():
@@ -42,3 +43,4 @@ def get_hello():
 @app.get("/timezones/{code}")
 def get_timezone(code: Annotated[str, Path(min_length=2, max_length=2)]) -> list[TimezoneMap]:
   return get_timezones_list(code)
+

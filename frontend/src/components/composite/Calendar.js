@@ -39,15 +39,6 @@ export function Calendar() {
   const end = endOfMonth(start)
   const daysInMonth = end.day
 
-  console.log({
-    currentMonth,
-    currentYear,
-    currentTimezone,
-    start,
-    end,
-    daysInMonth,
-  })
-
   // Get the day of the week for the first day of the month
   // Need to - 1 because in native Date, date starts from 0, in internationlized/date date starts from 1
   const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay()
@@ -117,8 +108,6 @@ export function Calendar() {
 
     return foundEvents
   }
-
-  console.log({ firstDayOfMonth })
 
   return (
     <div className="bg-white text-black dark:bg-black dark:text-white rounded-lg p-6">

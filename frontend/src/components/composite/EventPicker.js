@@ -1,26 +1,26 @@
 "use client"
 
+import { TimezoneContext } from "@/app/Providers"
 import { addEvent } from "@/lib/api/add-event"
+import { dateFrom1TimeFrom2 } from "@/lib/misc/time-helpers"
 import addQuestionSchema from "@/lib/schema/event-picker-schema"
 import { yupResolver } from "@hookform/resolvers/yup"
-import {
-  getLocalTimeZone,
-  now,
-  toTime,
-  ZonedDateTime,
-} from "@internationalized/date"
+import { now, toTime } from "@internationalized/date"
 import { Button, Input, Textarea, TimeInput } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import Participants from "./Participants"
 
 const EventPicker = ({ date }) => {
+  const { currentTimezone } = useContext(TimezoneContext)
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(addQuestionSchema),
@@ -33,19 +33,8 @@ const EventPicker = ({ date }) => {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    let from = now(getLocalTimeZone()).add({ minutes: 15 })
-    from = new ZonedDateTime(
-      date.year,
-      date.month,
-      date.day,
-      from.timeZone,
-      from.offset,
-      from.hour,
-      from.minute,
-      from.second
-    )
-
-    console.log({ from })
+    let from = now(currentTimezone.name).add({ minutes: 15 })
+    from = dateFrom1TimeFrom2(date, from, currentTimezone)
 
     const to = from.add({ minutes: 30 })
     setFrom(toTime(from))
@@ -56,14 +45,27 @@ const EventPicker = ({ date }) => {
   }, [])
 
   const setTimeFrom = (value) => {
-    console.log({ value })
-
     setFrom(value)
-    setValue("event_from", value.toAbsoluteString())
+
+    const zonedValue = value
+      ? dateFrom1TimeFrom2(date, value, currentTimezone).toAbsoluteString()
+      : null
+
+    console.log({ fromValue: value, zonedFrom: zonedValue, currentTimezone })
+
+    setValue("event_from", zonedValue)
   }
+
   const setTimeTo = (value) => {
     setTo(value)
-    setValue("event_to", value.toAbsoluteString())
+
+    const zonedValue = value
+      ? dateFrom1TimeFrom2(date, value, currentTimezone).toAbsoluteString()
+      : null
+
+    console.log({ toValue: value, zonedTo: zonedValue })
+
+    setValue("event_to", zonedValue)
   }
 
   const onSubmit = async (d) => {
@@ -77,6 +79,7 @@ const EventPicker = ({ date }) => {
 
     toast.success(`Successfully added your event ${data.title}`)
     setLoading(false)
+    reset()
   }
 
   const addParticipant = (event) => {
@@ -87,8 +90,6 @@ const EventPicker = ({ date }) => {
       setCurrentParticipant("")
     }
   }
-
-  console.log({ errors })
 
   return (
     <form
