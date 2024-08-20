@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from pydantic import UUID4
 
 from app.dependencies.get_session import get_db
@@ -11,9 +11,11 @@ router = APIRouter(
 )
 
 @router.post('/add')
-def add_event_api(event: CreateEventRequest, session=Depends(get_db)):
-  return add_event(session, event)
+def add_event_api(background_tasks: BackgroundTasks,
+                  event: CreateEventRequest, session=Depends(get_db)):
+  return add_event(background_tasks, session, event)
 
 @router.get('/all')
-def get_all_events_api(session=Depends(get_db), month: int | None = None, year: int | None = None):
+def get_all_events_api(session=Depends(get_db),
+                       month: int | None = None, year: int | None = None):
   return get_all_events(session, month, year)

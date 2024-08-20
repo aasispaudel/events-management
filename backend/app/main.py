@@ -5,8 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.events.routes import router as event_router
 from app.exceptions.event_exception import EventException
-from app.email.get_fastapi_mail import router as email_router
-
+from app.email.email_service import router as email_router
+from app.scheduler.scheduler import scheduler
 from app.timezones.timezones_service import get_timezones_list, TimezoneMap
 
 app = FastAPI()
