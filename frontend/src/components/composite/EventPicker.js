@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import Participants from "./Participants"
 
-const EventPicker = ({ date }) => {
+const EventPicker = ({ date, eventValues }) => {
   const { currentTimezone } = useContext(TimezoneContext)
 
   const {
@@ -81,6 +81,8 @@ const EventPicker = ({ date }) => {
     setLoading(false)
     reset()
   }
+
+  console.log({ errors })
 
   const addParticipant = (event) => {
     if (event.key === "Enter") {
@@ -157,6 +159,9 @@ const EventPicker = ({ date }) => {
       />
       {errors?.participants && (
         <p className="text-xs text-danger">{errors?.participants?.message}</p>
+      )}
+      {errors?.event_to && (
+        <p className="text-xs text-danger">{errors?.event_to?.message}</p>
       )}
       <Button
         size="sm"

@@ -78,7 +78,7 @@ const SingleDateBlock = ({ todayDate, blockDate, holidays, events }) => {
       <PopoverContent className="bg-slate-100 dark:bg-neutral-900 border-none w-[25rem] md:w-[30rem] rounded-lg">
         {triggerEvent ? (
           triggerEvent.type === EventTypes.personal ? (
-            <PersonalDetail />
+            <EventPicker date={blockDate} eventValues={triggerEvent}/>
           ) : (
             <HolidayDetail
               title={triggerEvent.title}

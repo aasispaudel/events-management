@@ -10,7 +10,16 @@ const CHAR_LENGTH_MAP = {
   sm: 4,
 }
 
-const MyEvent = ({ setPopoverOpen, type, title, id, setTriggerEvent }) => {
+const MyEvent = ({
+  setPopoverOpen,
+  type,
+  title,
+  id,
+  setTriggerEvent,
+  event_from,
+  event_to,
+  participants,
+}) => {
   /**
    * Note that event parameter on this funciton is different from our event which are created events or holidays
    * For example in setTriggerEvent: event is a holiday or created event which triggers the popver
@@ -25,7 +34,7 @@ const MyEvent = ({ setPopoverOpen, type, title, id, setTriggerEvent }) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setTriggerEvent({ title, type, id })
+    setTriggerEvent({ title, type, id, event_from, event_to, participants })
     setPopoverOpen(true)
     console.log("Event clicked")
   }
