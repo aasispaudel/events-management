@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/react"
 import { useState } from "react"
 import { toast } from "sonner"
 
-const DeleteEvent = ({ eventId }) => {
+const DeleteEvent = ({ eventId, revalidateEvents, closePicker }) => {
   const [deleting, setDeleting] = useState(false)
 
   const onDelete = async () => {
@@ -20,6 +20,10 @@ const DeleteEvent = ({ eventId }) => {
 
     toast.success("Successfully deleted your event")
     setDeleting(false)
+    revalidateEvents()
+
+    // Close the picker
+    closePicker()
   }
 
   return (

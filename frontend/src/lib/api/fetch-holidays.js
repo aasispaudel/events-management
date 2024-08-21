@@ -8,7 +8,7 @@ const fetchHolidays = async ({ fetchornot, country, year, signal }) => {
   // and it counts faster than actual requests 🙃
   if (!fetchornot) {
     try {
-      return { data: formatHolidays(sampleHolidays.holidays) }
+      return { data: formatHolidays(sampleHolidays.holidays, year) }
     } catch (e) {
       console.log({ error: e })
 

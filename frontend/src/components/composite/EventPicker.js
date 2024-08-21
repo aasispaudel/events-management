@@ -18,6 +18,7 @@ const EventPicker = ({
   date,
   eventValues,
   nullifyTriggerEvent,
+  closePicker,
   revalidateEvents,
 }) => {
   const { currentTimezone } = useContext(TimezoneContext)
@@ -97,6 +98,9 @@ const EventPicker = ({
     }
     setLoading(false)
     revalidateEvents()
+
+    // Close the popover
+    closePicker()
   }
 
   const onSubmitUpdate = async (d) => {
@@ -204,6 +208,13 @@ const EventPicker = ({
         <p className="text-xs text-danger">{errors?.event_to?.message}</p>
       )}
       <div className="flex w-full mt-4 items-center gap-x-5">
+        {eventValues && (
+          <DeleteEvent
+            eventId={eventValues.id}
+            revalidateEvents={revalidateEvents}
+            closePicker={closePicker}
+          />
+        )}
         <Button
           size="sm"
           variant="ghost"
@@ -214,7 +225,6 @@ const EventPicker = ({
         >
           {!eventValues ? "Create Event" : "Update Event"}
         </Button>
-        {eventValues && <DeleteEvent eventId={eventValues.id} />}
       </div>
     </form>
   )

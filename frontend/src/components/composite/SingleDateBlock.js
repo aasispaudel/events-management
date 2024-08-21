@@ -91,12 +91,14 @@ const SingleDateBlock = ({
               eventValues={triggerEvent}
               nullifyTriggerEvent={() => setTriggerEvent(null)}
               revalidateEvents={revalidateEvents}
+              closePicker={() => setIsOpen(false)}
             />
           ) : triggerEvent.type === "new" ? (
             <EventPicker
               date={blockDate}
               nullifyTriggerEvent={() => setTriggerEvent(null)}
               revalidateEvents={revalidateEvents}
+              closePicker={() => setIsOpen(false)}
             />
           ) : (
             <HolidayDetail

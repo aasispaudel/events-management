@@ -105,7 +105,8 @@ async def send_email(email: EmailBody,
   email_content = template.render(
     event_name=email.event_name,
     event_date=email.event_date,
-    event_time=email.event_time
+    event_time=email.event_time,
+    participants=', '.join(email.participants)
   )
 
   message = MessageSchema(

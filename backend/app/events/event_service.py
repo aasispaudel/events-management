@@ -29,7 +29,7 @@ def add_event(background_tasks, session: Session, event_model: CreateEventReques
     )
 
     # Schedule reminder email
-    run_date = event.event_from - timedelta(minutes=1)
+    run_date = event.event_from - timedelta(seconds=10)
     if run_date > datetime.now(utc):
       scheduler.add_job(
         send_email,
@@ -90,19 +90,33 @@ def update_event(background_tasks, event_id: int, session: Session, event_model:
   except Exception as e:
     raise HTTPException(status_code=500, detail='Could not update right now. Please try again later')
 
+'''
+  Handles different cases of modifying user events
+'''
 def __modify_job_with_grace(event: Event):
   try:
     # Schedule modified email
-    run_date = event.event_from - timedelta(minutes=1)
+    job = scheduler.get_job(f'{EVENT_PREFIX}{event.id}')
+    run_date = event.event_from - timedelta(seconds=10)
     if run_date > datetime.now(utc):
-      scheduler.modify_job(
-        f'{EVENT_PREFIX}{event.id}',
-        run_date=run_date,
-        args=[__make_email_body(event),
-              SendEmailType.reminder]
-      )
+      if job is not None and job:
+        scheduler.modify_job(
+          f'{EVENT_PREFIX}{event.id}',
+          run_date=run_date,
+          args=[__make_email_body(event),
+                SendEmailType.reminder]
+        )
+      else:
+        scheduler.add_job(
+          send_email,
+          'date',
+          run_date=run_date,
+          args=[__make_email_body(event), SendEmailType.reminder],
+          id=f'${EVENT_PREFIX}{event.id}'
+        )
     else:
-      scheduler.remove_job(f'{EVENT_PREFIX}{event.id}')
+      if job is not None and job:
+        scheduler.remove_job(f'{EVENT_PREFIX}{event.id}')
   except JobLookupError as e:
     print('Job not found')
     pass

@@ -78,6 +78,8 @@ export function Calendar() {
         response = { data: [] }
       }
 
+      console.log({ response })
+
       return { items: response.data }
     },
   })
@@ -85,6 +87,8 @@ export function Calendar() {
   useEffect(() => {
     holidays.reload()
   }, [selectedGlobalCountry, currentYear])
+
+  console.log({ holidays })
 
   // User events list
   const events = useAsyncList({
@@ -96,6 +100,7 @@ export function Calendar() {
 
       return { items: data }
     },
+    getKey: (item) => item.id,
   })
   // Modify user-events when month change, year change
   useEffect(() => {
@@ -110,6 +115,8 @@ export function Calendar() {
         ) === 0
       )
     })
+
+    console.log({ foundHolidays })
 
     return foundHolidays
   }
