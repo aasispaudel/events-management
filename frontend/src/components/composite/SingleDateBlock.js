@@ -15,6 +15,9 @@ const SingleDateBlock = ({
   holidays,
   events,
   revalidateEvents,
+  removeEvent,
+  addItem,
+  updateItem,
 }) => {
   const isToday = () =>
     blockDate.day === todayDate.day &&
@@ -92,6 +95,9 @@ const SingleDateBlock = ({
               nullifyTriggerEvent={() => setTriggerEvent(null)}
               revalidateEvents={revalidateEvents}
               closePicker={() => setIsOpen(false)}
+              removeEvent={removeEvent}
+              addItem={addItem}
+              updateItem={updateItem}
             />
           ) : triggerEvent.type === "new" ? (
             <EventPicker
@@ -99,6 +105,9 @@ const SingleDateBlock = ({
               nullifyTriggerEvent={() => setTriggerEvent(null)}
               revalidateEvents={revalidateEvents}
               closePicker={() => setIsOpen(false)}
+              removeEvent={removeEvent}
+              addItem={addItem}
+              updateItem={updateItem}
             />
           ) : (
             <HolidayDetail

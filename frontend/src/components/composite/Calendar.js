@@ -78,8 +78,6 @@ export function Calendar() {
         response = { data: [] }
       }
 
-      console.log({ response })
-
       return { items: response.data }
     },
   })
@@ -87,8 +85,6 @@ export function Calendar() {
   useEffect(() => {
     holidays.reload()
   }, [selectedGlobalCountry, currentYear])
-
-  console.log({ holidays })
 
   // User events list
   const events = useAsyncList({
@@ -115,8 +111,6 @@ export function Calendar() {
         ) === 0
       )
     })
-
-    console.log({ foundHolidays })
 
     return foundHolidays
   }
@@ -183,6 +177,9 @@ export function Calendar() {
               revalidateEvents={() => {
                 events.reload()
               }}
+              removeEvent={events.remove}
+              addItem={events.append}
+              updateItem={events.update}
             />
           </div>
         ))}

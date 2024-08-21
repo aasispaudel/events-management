@@ -1,4 +1,4 @@
-from apscheduler.jobstores.base import JobLookupError
+from apscheduler.jobstores.base import JobLookupError, ConflictingIdError
 from fastapi import HTTPException
 from sqlalchemy import select, extract
 from sqlalchemy.orm import Session
@@ -36,7 +36,7 @@ def add_event(background_tasks, session: Session, event_model: CreateEventReques
         'date',
         run_date=run_date,
         args=[__make_email_body(event), SendEmailType.reminder],
-        id=f'${EVENT_PREFIX}{event.id}'
+        id=f'{EVENT_PREFIX}{event.id}'
       )
 
     return EventResponse.model_validate(event)
@@ -94,25 +94,20 @@ def update_event(background_tasks, event_id: int, session: Session, event_model:
   Handles different cases of modifying user events
 '''
 def __modify_job_with_grace(event: Event):
+  run_date = event.event_from - timedelta(seconds=10)
   try:
     # Schedule modified email
     job = scheduler.get_job(f'{EVENT_PREFIX}{event.id}')
-    run_date = event.event_from - timedelta(seconds=10)
     if run_date > datetime.now(utc):
       if job is not None and job:
-        scheduler.modify_job(
-          f'{EVENT_PREFIX}{event.id}',
-          run_date=run_date,
-          args=[__make_email_body(event),
-                SendEmailType.reminder]
-        )
-      else:
-        scheduler.add_job(
-          send_email,
-          'date',
-          run_date=run_date,
-          args=[__make_email_body(event), SendEmailType.reminder],
-          id=f'${EVENT_PREFIX}{event.id}'
+        scheduler.remove_job(f'{EVENT_PREFIX}{event.id}')
+
+      scheduler.add_job(
+        send_email,
+        'date',
+        run_date=run_date,
+        args=[__make_email_body(event), SendEmailType.reminder],
+        id=f'{EVENT_PREFIX}{event.id}'
         )
     else:
       if job is not None and job:
@@ -120,7 +115,8 @@ def __modify_job_with_grace(event: Event):
   except JobLookupError as e:
     print('Job not found')
     pass
-
+  except ConflictingIdError as e:
+    scheduler.remove_job(f'{EVENT_PREFIX}{event.id}')
 
 def delete_event(background_tasks, event_id: int, session: Session):
   try:

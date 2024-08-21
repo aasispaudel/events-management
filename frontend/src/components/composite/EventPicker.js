@@ -2,6 +2,7 @@
 
 import { TimezoneContext } from "@/app/Providers"
 import { addEvent, updateEvent } from "@/lib/api/event-mutations"
+import { EventTypes } from "@/lib/constants"
 import { dateFrom1TimeFrom2 } from "@/lib/misc/time-helpers"
 import addQuestionSchema from "@/lib/schema/event-picker-schema"
 import { hasValue } from "@/lib/utils"
@@ -20,6 +21,9 @@ const EventPicker = ({
   nullifyTriggerEvent,
   closePicker,
   revalidateEvents,
+  removeEvent,
+  addItem,
+  updateItem,
 }) => {
   const { currentTimezone } = useContext(TimezoneContext)
 
@@ -97,7 +101,7 @@ const EventPicker = ({
       await onSubmitAdd(d)
     }
     setLoading(false)
-    revalidateEvents()
+    // revalidateEvents()
 
     // Close the popover
     closePicker()
@@ -113,6 +117,8 @@ const EventPicker = ({
     }
 
     toast.success(`Successfully updated your event ${data.title}`)
+
+    revalidateEvents()
   }
 
   const onSubmitAdd = async (d) => {
@@ -123,6 +129,12 @@ const EventPicker = ({
     }
 
     toast.success(`Successfully added your event ${data.title}`)
+
+    addItem({
+      ...data,
+      type: EventTypes.personal,
+      participants: data.participants ? data.participants : [],
+    })
 
     reset()
   }
