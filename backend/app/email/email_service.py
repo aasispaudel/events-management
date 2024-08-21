@@ -31,11 +31,11 @@ conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv('EMAIL_USERNAME'),
     MAIL_PASSWORD=os.getenv('EMAIL_PASSWORD'),
     MAIL_FROM=os.getenv('EMAIL_FROM'),
-    MAIL_PORT=465,
+    MAIL_PORT=587,
     MAIL_SERVER=os.getenv('EMAIL_SERVER'),
     MAIL_FROM_NAME=os.getenv('EMAIL_FROM_NAME'),
-    MAIL_SSL_TLS=True,
-    MAIL_STARTTLS=False,
+    MAIL_SSL_TLS=False,
+    MAIL_STARTTLS=True,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True
 )
