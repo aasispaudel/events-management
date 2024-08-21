@@ -20,7 +20,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "../icons/chevron"
 import SelectCountries from "../simple/SelectCountries"
 import SingleDateBlock from "./SingleDateBlock"
 
-const REAL_HOLIDAY_FETCH = false
+const REAL_HOLIDAY_FETCH = true
 
 export function Calendar() {
   const { currentTimezone } = useContext(TimezoneContext)
