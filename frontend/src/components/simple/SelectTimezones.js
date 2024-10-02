@@ -45,10 +45,12 @@ const SelectTimezones = ({ countryCode }) => {
           description: "Using default timezone: 'America/New_York'",
         })
 
-        setTimezones(["America/New_York"])
+        setTimezones([{ name: "America/New_York" }])
       }
     })()
   }, [countryCode])
+
+  console.log({ timezones })
 
   return (
     <Select
