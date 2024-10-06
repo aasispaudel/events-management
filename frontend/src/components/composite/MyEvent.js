@@ -19,6 +19,7 @@ const MyEvent = ({
   event_from,
   event_to,
   participants,
+  description,
 }) => {
   /**
    * Note that event parameter on this funciton is different from our event which are created events or holidays
@@ -28,13 +29,19 @@ const MyEvent = ({
    * @param {clickEvent} event
    */
   const onClick = (event) => {
-    console.log("Event is being fired")
-
     setPopoverOpen(false)
     event.preventDefault()
     event.stopPropagation()
 
-    setTriggerEvent({ title, type, id, event_from, event_to, participants })
+    setTriggerEvent({
+      title,
+      type,
+      id,
+      event_from,
+      event_to,
+      participants,
+      description,
+    })
     setPopoverOpen(true)
   }
 

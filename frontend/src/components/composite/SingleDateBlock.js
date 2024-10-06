@@ -80,6 +80,7 @@ const SingleDateBlock = ({
                 participants={myEvent.participants}
                 event_from={myEvent.event_from}
                 event_to={myEvent.event_to}
+                description={myEvent.description}
               />
             ))}
           </div>
