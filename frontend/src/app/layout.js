@@ -7,8 +7,8 @@ import Providers from "./Providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Levo Events Management",
-  description: "Manage events with Levo",
+  title: "Asis Events Management",
+  description: "Manage events with Asis",
 }
 
 export default function RootLayout({ children }) {
