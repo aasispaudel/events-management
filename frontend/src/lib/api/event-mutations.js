@@ -2,7 +2,7 @@ import { fastApiUrl } from "../env"
 
 export async function addEvent({ myEvent }) {
   try {
-    const res = await fetch(`${fastApiUrl}/api/event/add`, {
+    const res = await fetch(`${fastApiUrl}/add`, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(myEvent),
@@ -21,7 +21,7 @@ export async function addEvent({ myEvent }) {
 
 export async function updateEvent({ myEvent }) {
   try {
-    const res = await fetch(`${fastApiUrl}/api/event/update/${myEvent.id}`, {
+    const res = await fetch(`${fastApiUrl}/update/${myEvent.id}`, {
       headers: { "Content-Type": "application/json" },
       method: "PUT",
       body: JSON.stringify(myEvent),
@@ -40,7 +40,7 @@ export async function updateEvent({ myEvent }) {
 
 export async function deleteEvent({ eventId }) {
   try {
-    const res = await fetch(`${fastApiUrl}/api/event/delete/${eventId}`, {
+    const res = await fetch(`${fastApiUrl}/delete/${eventId}`, {
       method: "DELETE",
     })
     const data = await res.json()

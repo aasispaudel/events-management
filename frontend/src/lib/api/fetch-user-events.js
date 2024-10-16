@@ -2,7 +2,7 @@ import { EventTypes } from "../constants"
 import { fastApiUrl } from "../env"
 
 const fetchEvents = async ({ month, year }) => {
-  const url = new URL(`${fastApiUrl}/api/event/all`)
+  const url = new URL(`${fastApiUrl}/all`)
 
   if (month) {
     url.searchParams.append("month", month)
